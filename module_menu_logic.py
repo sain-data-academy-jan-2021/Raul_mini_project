@@ -3,7 +3,6 @@ import csv
 import module_print, module_menus, module_crud
 import pandas as pd
 import pymysql
-import os
 from prettytable import from_db_cursor
 
 
@@ -12,89 +11,78 @@ orders = module_crud.load_data("datastore/order.csv")
 # products = module_crud.load_data("datastore/product.csv") 
 # couriers = module_crud.load_data("datastore/courier.csv")
 
-def print_couriers(connection):
-    cursor = connection.cursor()
-    cursor.execute('SELECT couriers_id, name, phone FROM Couriers')
-    mytable = from_db_cursor(cursor)
-    print(mytable)
+# def print_couriers(connection):
+#     cursor = connection.cursor()
+#     cursor.execute('SELECT couriers_id, name, phone FROM Couriers')
+#     mytable = from_db_cursor(cursor)
+#     print(mytable)
 
-def print_products(connection):
-    cursor = connection.cursor()
-    cursor.execute('SELECT products_id, product_name, price FROM Products')
-    mytable = from_db_cursor(cursor)
-    print(mytable)
+# def print_products(connection):
+#     cursor = connection.cursor()
+#     cursor.execute('SELECT products_id, product_name, price FROM Products')
+#     mytable = from_db_cursor(cursor)
+#     print(mytable)
 
-def update_product(connection):
-    print_products()
-    product_select = input('What product would you like to update? \n')
-    new_name = input('What would you like to updated to \n Press enter to continue \n')
-    if new_name == '' :
-        pass 
-    else:
-        cursor = connection.cursor()
-        cursor.execute(f'UPDATE Products SET product_name = "{new_name}" WHERE products_id = "{product_select}"')
-    new_price = input('Please enter a price for the product \n Press enter to continue \n')
-    if new_price == '' :
-        pass
-    else:
-        cursor = connection.cursor()
-        cursor.execute(f'UPDATE Products SET price = "{new_price}" WHERE products_id = "{product_select}"')
-    cursor.close()
-    connection.commit()
+# def update_product(connection):
+#     print_products(connection)
+#     product_select = input('What product would you like to update? \n')
+#     new_name = input('What would you like to updated to \n Press enter to continue \n')
+#     if new_name == '' :
+#         pass 
+#     else:
+#         cursor = connection.cursor()
+#         cursor.execute(f'UPDATE Products SET product_name = "{new_name}" WHERE products_id = "{product_select}"')
+#     new_price = input('Please enter a price for the product \n Press enter to continue \n')
+#     if new_price == '' :
+#         pass
+#     else:
+#         cursor = connection.cursor()
+#         cursor.execute(f'UPDATE Products SET price = "{new_price}" WHERE products_id = "{product_select}"')
+#     cursor.close()
+#     connection.commit()
 
-def delete_product(connection):
-    print_products()
-    delete_product = input('What product would you like to delete? \n')
-    cursor = connection.cursor()
-    cursor.execute(f'DELETE FROM Products WHERE product_name = "{delete_product}" ')
-    cursor.close()
-    connection.commit()
+# def delete_product(connection):
+#     print_products()
+#     delete_product = input('What product would you like to delete? \n')
+#     cursor = connection.cursor()
+#     cursor.execute(f'DELETE FROM Products WHERE product_name = "{delete_product}" ')
+#     cursor.close()
+#     connection.commit()
 
-def add_product(connection):
-    new_product = input("What product would you like to add? \n").title()
-    while True:
-        try:
-            product_price = float(input("What is the price of the product? \n"))
-            break
-        except ValueError:
-            print('Please enter a number')
-    cursor = connection.cursor()
-    cursor.execute(f'INSERT INTO Products (product_name, price) VALUES ("{new_product}", {product_price})')
-    cursor.close()
-    connection.commit()
+# def add_product(connection):
+#     new_product = input("What product would you like to add? \n").title()
+#     while True:
+#         try:
+#             product_price = float(input("What is the price of the product? \n"))
+#             break
+#         except ValueError:
+#             print('Please enter a number')
+#     cursor = connection.cursor()
+#     cursor.execute(f'INSERT INTO Products (product_name, price) VALUES ("{new_product}", {product_price})')
+#     cursor.close()
+#     connection.commit()
 
 def product_menu_logic(choice, connection):
     while choice != "0":
         if choice == "1":
             os.system("clear")
-            print_products(connection)
-            # A cursor is an object that represents a DB cursor,
-            # which is used to manage the context of a fetch operation.
-            # cursor = connection.cursor()
-            # cursor.execute('SELECT product_name, price FROM Products')
-            # # Gets all rows from the result
-            # rows = cursor.fetchall()
-            # for row in rows:
-            #     print(f'Products available  {str(row[0])} Price is  {row[1]}')            
-            # cursor.close()
-            # module_print.print_from_file("datastore/product.csv")
+            module_crud.print_products(connection, data)
+            # data = cursor.execute('SELECT products_id, product_name, price FROM Products')
             choice = module_menus.product_menu()
         elif choice == "2":
             # Add new products
             os.system("clear")
-            
-            add_product(connection)
-            
+            module_crud.add_product(connection)
             # # Ask if user wants to add more products
-            # add_more = input("Do you want to add another one? Yes or No \n").title()
-            # os.system("clear")
-            # if add_more != "No":
-            #     add_product()
+            add_more = input("Do you want to add another one? Yes or No \n").title()
+            os.system("clear")
+            if add_more != "No":
+                add_product()
             choice = module_menus.product_menu()
         elif choice == "3":
             # Update product
             os.system("clear")
-            update_product(connection)
+            module_crud.update_product(connection)
             # Print all the products
             # module_print.print_from_file("datastore/product.csv")
             # # Ask user for the product to update
@@ -111,7 +99,7 @@ def product_menu_logic(choice, connection):
         elif choice == "4":
             # Delete product
             os.system("clear")  
-            delete_product(connection)
+            module_crud.delete_product(connection)
             # Print all the products
             # module_print.print_from_file("datastore/product.csv")
 
@@ -207,7 +195,7 @@ def courier_menu_logic(choice, connection):
         if choice == "1":
             os.system("clear")
             # Print all the couriers
-            print_couriers(connection)
+            module_crud.print_couriers(connection)
             # module_print.print_from_file("courier.csv")
             # loopet backed at line 61 after we done everything in the if block
             choice = module_menus.courier_menu()

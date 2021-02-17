@@ -6,7 +6,7 @@ import pymysql
 import os
 from dotenv import load_dotenv
 from prettytable import from_db_cursor
-# 4760367
+# git commands # git branch -D main 
 load_dotenv()
 host = os.environ.get("mysql_hosr")
 user = os.environ.get("mysql_user")
