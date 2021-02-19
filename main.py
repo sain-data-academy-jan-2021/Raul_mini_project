@@ -37,7 +37,7 @@ def start_program():
         elif choice_main_menu == "3":
             os.system("clear")    
             choice_order_menu = module_menus.order_menu()
-            module_menu_logic.order_menu_logic(choice_order_menu)
+            module_menu_logic.order_menu_logic(choice_order_menu, connection)
             os.system("clear")
             choice_main_menu = module_menus.main_menu()
         else: 

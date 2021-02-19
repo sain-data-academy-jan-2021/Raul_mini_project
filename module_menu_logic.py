@@ -7,7 +7,7 @@ from prettytable import from_db_cursor
 
 
 # Read data from csv files 
-orders = module_crud.load_data("datastore/order.csv")
+# orders = module_crud.load_data("datastore/order.csv")
 # products = module_crud.load_data("datastore/product.csv") 
 # couriers = module_crud.load_data("datastore/courier.csv")
 
@@ -66,7 +66,7 @@ def product_menu_logic(choice, connection):
     while choice != "0":
         if choice == "1":
             os.system("clear")
-            module_crud.print_products(connection, data)
+            module_crud.print_products(connection)
             # data = cursor.execute('SELECT products_id, product_name, price FROM Products')
             choice = module_menus.product_menu()
         elif choice == "2":
@@ -77,28 +77,18 @@ def product_menu_logic(choice, connection):
             add_more = input("Do you want to add another one? Yes or No \n").title()
             os.system("clear")
             if add_more != "No":
-                add_product()
+                module_crud.add_product(connection)
             choice = module_menus.product_menu()
         elif choice == "3":
             # Update product
             os.system("clear")
+            module_crud.print_products(connection)
             module_crud.update_product(connection)
-            # Print all the products
-            # module_print.print_from_file("datastore/product.csv")
-            # # Ask user for the product to update
-            # update_product = input("What proudct would you like to update? \n").title()
-            # os.system("clear")
-            # if not any(d['Name'] == update_product for d in products):
-            #     print(f"Product {update_product} does not exist. Please try again")
-            # else:
-            #     # Need to work on this
-            #     new_price = input("Enter the updated price \n").title()
-            #     module_crud.update_product(update_product, new_price, products)
-            
             choice = module_menus.product_menu()    
         elif choice == "4":
             # Delete product
-            os.system("clear")  
+            os.system("clear")
+            module_crud.print_products(connection)
             module_crud.delete_product(connection)
             # Print all the products
             # module_print.print_from_file("datastore/product.csv")
@@ -118,41 +108,17 @@ def product_menu_logic(choice, connection):
             print("Option selected is invalid")
             choice = module_menus.product_menu()
 
-def order_menu_logic(choice):
+def order_menu_logic(choice, connection):
     while choice != "0":
         if choice == "1":
             # Display all orders
-            module_print.print_from_file("datastore/order.csv")
+            os.system('clear')
+            module_crud.print_orders(connection)
             choice = module_menus.order_menu()
         elif choice == "2":
             # Add a new order
             os.system("clear")
-            # Get all the inputs
-            name = input("Please enter the name of new order \n").title()
-            address = input("Please type the address for delivery \n").title()
-            phone = input("Please enter phone number \n").title()
-            delv_method = input("Please add the delivery method \n").title()
-            status = input("Please enter the status of the order \n").title()
-            
-            product_choice_input = ""
-            # List for all the items user selected
-            product_selection = []
-            while product_choice_input != "0":
-                # prints all the items
-                module_print.print_from_file("datastore/product.csv")
-                # takes the input
-                product_choice_input = input("Select product from list below or type 0 to return \n").title()
-
-                if product_choice_input != "0":
-                    # add the user input to the list of items as long as it's not zero
-                    product_selection.append(product_choice_input)
-
-            orders.append(
-                {'Name': name, 'Address': address, 'Phone': phone, 'Courier': delv_method, 'Status': status,
-                 'Items': ','.join(product_selection)}
-            )
-            module_crud.save_data(orders, "datastore/order.csv")
-            module_print.print_from_file("datastore/order.csv")
+            module_crud.add_order_to_db(connection)
             choice = module_menus.order_menu()
         elif choice == "3":
             os.system("clear")
@@ -196,51 +162,26 @@ def courier_menu_logic(choice, connection):
             os.system("clear")
             # Print all the couriers
             module_crud.print_couriers(connection)
-            # module_print.print_from_file("courier.csv")
-            # loopet backed at line 61 after we done everything in the if block
             choice = module_menus.courier_menu()
 
         elif choice == "2":
             # Add courier
-            os.system("clear")
-            new_courier = input("What name would you like to add? \n").title()
-            courier_phone = input("What is the phone number? \n").title()
-            couriers.append(
-                {'Name': new_courier, 'Phone': courier_phone}
-            )
-            module_crud.save_data(couriers, "courier.csv")
-
+            os.system('clear')
+            module_crud.add_courier(connection)
             choice = module_menus.courier_menu()
 
         elif choice == "3":
             # Update courier
             os.system("clear")
-            module_print.print_from_file("courier.csv")
-
-            courier_to_update = input("What courier would you like to update? \n").title()
-
-            os.system("clear")
-
-            if not any(d['Name'] == courier_to_update for d in couriers):
-                print(f"Courier {courier_to_update} does not exist. Please try again")
-            else:
-                updated_courier = input("What would you like to update this to? \n").title()
-                module_crud.update_courier(courier_to_update, updated_courier, couriers)
-            
+            module_crud.print_couriers(connection)
+            module_crud.update_courier(connection)
             choice = module_menus.courier_menu()
 
         elif choice == "4":
             # Delete courier
             os.system("clear")
-            
-            courier_to_delete = input("Which courier would you like to delete? \n").title()
-
-            # Check if it exits 
-            if not any(d['Name'] == courier_to_delete for d in couriers):
-                print(f"Courier {courier_to_delete} does not exist. Please try again.")
-            else:
-                module_crud.remove_data(couriers, courier_to_delete, "courier.csv")
-
+            module_crud.print_couriers(connection)
+            module_crud.delete_courier(connection)
             choice = module_menus.courier_menu()
 
         else:
