@@ -5,18 +5,50 @@ import pymysql
 from prettytable import from_db_cursor
     
 
-# --- DATABASES CRUD MODULES --- 
+# ============= DATABASES + CRUD FUNCTIONS-MODULES ============== 
+
 def execute_sql(connection, sql):
     cursor = connection.cursor()
     cursor.execute(sql)
     cursor.close()
     connection.commit()
 
-# --- Products functions ---
+def execute_sql_select(connection, sql):
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    cursor.close()
+    return cursor.fetchall()
+
+
+def read_orders_db(connection):
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM Orders')
+    order_rows = cursor.fetchall()
+    for row in order_rows:
+        print(row)
+    cursor.close()
+    
+def read_couriers_db(connection):
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM Couriers')
+    order_rows = cursor.fetchall()
+    for row in order_rows:
+        print(row)
+    cursor.close()
+
+def read_products_db(connection):
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM Products')
+    order_rows = cursor.fetchall()
+    for row in order_rows:
+        print(row)
+    cursor.close()
+
+# ============= Products functions ============= 
 
 def print_products(connection):
     cursor = connection.cursor()
-    cursor.execute('SELECT products_id, product_name, price FROM Products')
+    cursor.execute('SELECT * FROM Products')
     mytable = from_db_cursor(cursor)
     print(mytable)
 
@@ -53,10 +85,11 @@ def add_product(connection):
     sql = (f'INSERT INTO Products (product_name, price) VALUES ("{new_product}", {product_price})')
     execute_sql(connection, sql)
 
-# ---- Couriers Functions ----
+# ============= Couriers Functions ============= 
+
 def print_couriers(connection):
     cursor = connection.cursor()
-    cursor.execute('SELECT couriers_id, courier_name, phone FROM Couriers')
+    cursor.execute('SELECT * FROM Couriers')
     mytable = from_db_cursor(cursor)
     print(mytable)
     
@@ -90,7 +123,7 @@ def delete_courier(connection):
     sql = (f'DELETE FROM Couriers WHERE couriers_id = "{del_courier}" ')
     execute_sql(connection, sql)
     
-# ---- ORDERS FUNCTIONS -----
+# ============= ORDERS FUNCTIONS ============= 
 
 def print_orders(connection):
     cursor = connection.cursor()
@@ -98,29 +131,6 @@ def print_orders(connection):
     mytable = from_db_cursor(cursor)
     print(mytable)
 
-def read_orders_db(connection):
-    cursor = connection.cursor()
-    cursor.execute('SELECT * FROM Orders')
-    order_rows = cursor.fetchall()
-    for row in order_rows:
-        print(row)
-    cursor.close()
-    
-def read_couriers_db(connection):
-    cursor = connection.cursor()
-    cursor.execute('SELECT * FROM Couriers')
-    order_rows = cursor.fetchall()
-    for row in order_rows:
-        print(row)
-    cursor.close()
-
-def read_products_db(connection):
-    cursor = connection.cursor()
-    cursor.execute('SELECT * FROM Products')
-    order_rows = cursor.fetchall()
-    for row in order_rows:
-        print(row)
-    cursor.close()
 
 def add_order_to_db(connection):
     new_name = input('Please enter your full name for the order \n').capitalize()
@@ -132,13 +142,8 @@ def add_order_to_db(connection):
     execute_sql(connection, f"INSERT INTO Orders (full_name, c_address, phone_number, courier, live_status) VALUES ('{new_name}', '{cust_address}', '{phone}', '{courier}', '{live_status}')")
     order_id = execute_sql_select(connection, 'SELECT max(order_id) FROM Orders')[0][0]
     for item in items:
-        execute_sql(connection, f"INSERT INTO basket (order_id, products_id) VALUES ( '{order_id}', '{item}')")
+        execute_sql(connection, f"INSERT INTO Basket (order_id, products_id) VALUES ( '{order_id}', '{item}')")
 
-def execute_sql_select(connection, sql):
-    cursor = connection.cursor()
-    cursor.execute(sql)
-    cursor.close()
-    return cursor.fetchall()
 
 def add_courier_to_order(connection):
     # read_couriers_db(connection)
@@ -155,7 +160,6 @@ def add_courier_to_order(connection):
 
 def add_products_to_order(connection):
     print_products(connection)
-    # read_products_db(connection)
     select_ids = []
     select_product = []
     for row in execute_sql_select(connection, f'SELECT products_id FROM Products'):
@@ -177,9 +181,34 @@ def delete_from_db(connection):
         read_orders_db(connection)
         id = int(input('Please an Order to delete! \n'))
         if id in select_ids:
-            execute_sql(connection, f'DELETE FROM basket WHERE order_id = {id}')
+            execute_sql(connection, f'DELETE FROM Basket WHERE order_id = {id}')
             execute_sql(connection, f'DELETE FROM Orders WHERE order_id = {id}')
             break
         else:
             print('Option selected is invalid')
 # delete from basket and delete from orders first in basket and then in orders
+
+def update_order_in_db(connection):
+    existing_ids = [id[0] for id in execute_sql_select(connection, f'SELECT order_id from Orders')]
+    while True:
+        print_orders(connection)
+        id = int(input("Please select the order you want to update "))
+        if id in existing_ids:
+            update_order_name = input("Please enter the new name \n Press enter to continue \n ")
+            if update_order_name = ''
+                pass
+            update_order_address = input("Please enter the new delivery address")
+            if update_order_address = ''
+                pass
+            update_phone = input("Please enter the updated phone number")
+            if update_phone = ''
+                pass
+            print_couriers(connection)
+            update_courier = input("Please enter the updated courier from the list above")
+            update_status = input("Please enter the updated status of the order")
+            execute_sql(connection, f'UPDATE Orders SET full_name = "{update_order_name}", c_address = "{update_order_address}", phone_number = "{update_phone}", courier = "{update_courier}", live_status = "{update_status}" WHERE order_id = {id}')
+            execute_sql(connection, f'DELETE from basket where order_id = {id}')
+            items = add_products_to_order(connection)
+            for item in items:
+                execute_sql(connection, f"INSERT into basket (order_id, product_id) VALUES ({id}, {item})")
+            break

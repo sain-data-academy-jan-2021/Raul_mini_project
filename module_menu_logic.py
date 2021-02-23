@@ -12,29 +12,31 @@ def product_menu_logic(choice, connection):
             os.system("clear")
             module_crud.print_products(connection)
             choice = module_menus.product_menu()
+
         elif choice == "2":
-            # Add new products
             os.system("clear")
             module_crud.add_product(connection)
-            # # Ask if user wants to add more products
             while True:
-                add_more = input("Do you want to add another one? Yes or No \n").title()
+                add_more = input("Do you want to add another one?\n Yes or No \n").title()
                 os.system("clear")
                 if add_more != "No":
                     module_crud.add_product(connection)
             choice = module_menus.product_menu()
+
         elif choice == "3":
             # Update product
             os.system("clear")
             module_crud.print_products(connection)
             module_crud.update_product(connection)
             choice = module_menus.product_menu()    
+
         elif choice == "4":
             # Delete product
             os.system("clear")
             module_crud.print_products(connection)
             module_crud.delete_product(connection)
             choice = module_menus.product_menu()
+
         else:
             os.system("clear")
             print("Option selected is invalid")
@@ -43,35 +45,34 @@ def product_menu_logic(choice, connection):
 def order_menu_logic(choice, connection):
     while choice != "0":
         if choice == "1":
-            # Display all orders
             os.system('clear')
             module_crud.print_orders(connection)
             choice = module_menus.order_menu()
+
         elif choice == "2":
-            # Add a new order
             os.system("clear")
             module_crud.add_order_to_db(connection)
             choice = module_menus.order_menu()
+
         elif choice == "3":
             os.system("clear")
-            module_print.print_from_file("datastore/order.csv")
+            # module_print.print_from_file("datastore/order.csv")
+            # order_to_update = input("Which order would you like to update? \n").title()
+            # os.system("clear")
+            # if not any(d['Name'] == order_to_update for d in orders):
+            #     print(f"Order {order_to_update} does not exist. Please try again")
+            # else:
+            #     updated_order = input("Please enter the updated status of the order \n").title()
+            #     module_crud.update_order_status(order_to_update, updated_order, orders)    
+            # choice = module_menus.order_menu()
 
-            order_to_update = input("Which order would you like to update? \n").title()
-
-            os.system("clear")
-
-            if not any(d['Name'] == order_to_update for d in orders):
-                print(f"Order {order_to_update} does not exist. Please try again")
-            else:
-                updated_order = input("Please enter the updated status of the order \n").title()
-                module_crud.update_order_status(order_to_update, updated_order, orders)    
-            choice = module_menus.order_menu()
         elif choice == "4":
             # Delete product
             os.system("clear")
             module_crud.print_orders(connection)
             module_crud.delete_from_db(connection)
             choice = module_menus.order_menu()       
+
         else:
             os.system("clear")
             print("Option selected is invalid")
