@@ -1,12 +1,12 @@
 import os
 import sys
-import csv
 import module_menus, module_menu_logic
 import pymysql
 import os
 from dotenv import load_dotenv
 from prettytable import from_db_cursor
-# git commands # git branch -D main 
+
+
 load_dotenv()
 host = os.environ.get("mysql_hosr")
 user = os.environ.get("mysql_user")
@@ -21,7 +21,7 @@ def start_program():
         database
     )
     choice_main_menu = module_menus.main_menu()
-    while choice_main_menu != "4":
+    while choice_main_menu != "5":
         if choice_main_menu == "1":
             os.system("clear")
             choice_product_menu = module_menus.product_menu()
@@ -40,12 +40,18 @@ def start_program():
             module_menu_logic.order_menu_logic(choice_order_menu, connection)
             os.system("clear")
             choice_main_menu = module_menus.main_menu()
+        elif choice_main_menu == "4":
+            os.system("clear")
+            choice_joins_menu = module_menus.joins_menu()
+            module_menu_logic.join_tabels_logic(choice_joins_menu, connection)
+            os.system("clear")
+            choice_main_menu = module_menus.main_menu()
         else: 
             os.system("clear")
             print("Option selected is invalid")
             choice_main_menu = module_menus.main_menu()
 
-    print("Goodbye ")
+    print("You have closed the app\nHave a good day")
     connection.close()
     sys.exit(0)
 

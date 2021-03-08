@@ -5,7 +5,10 @@ import pymysql
 from prettytable import from_db_cursor
     
 
-# ============= DATABASES + CRUD FUNCTIONS-MODULES ============== 
+# ============= DATABASES --- CRUD  ============== 
+
+
+# ============= SQL exec statments ============== 
 
 def execute_sql(connection, sql):
     cursor = connection.cursor()
@@ -19,6 +22,10 @@ def execute_sql_select(connection, sql):
     cursor.close()
     return cursor.fetchall()
 
+def execute_sql_select_join(connection, sql):
+    cursor = connection.cursor()
+    return cursor.execute(sql)
+    
 
 def read_orders_db(connection):
     cursor = connection.cursor()
@@ -27,14 +34,7 @@ def read_orders_db(connection):
     for row in order_rows:
         print(row)
     cursor.close()
-    
-def read_couriers_db(connection):
-    cursor = connection.cursor()
-    cursor.execute('SELECT * FROM Couriers')
-    order_rows = cursor.fetchall()
-    for row in order_rows:
-        print(row)
-    cursor.close()
+
 
 def read_products_db(connection):
     cursor = connection.cursor()
@@ -44,22 +44,29 @@ def read_products_db(connection):
         print(row)
     cursor.close()
 
-# ============= Products functions ============= 
-
-def print_products(connection):
+# ============= Print functions ============= 
+def print_database(connection, table):
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM Products')
+    cursor.execute(f'SELECT*FROM {table}')
     mytable = from_db_cursor(cursor)
     print(mytable)
 
+def print_orders(connection):
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM Orders')
+    mytable = from_db_cursor(cursor)
+    print(mytable)
+
+# ============= Products functions ============= 
+
 def update_product(connection):
     product_select = input('What product would you like to update? \n')
-    new_name = input('What would you like to updated to \n Press enter to continue \n')
+    new_name = input('What would you like to updated to\nPress enter to continue \n')
     if new_name == '' :
         pass 
     else:
         execute_sql(connection, f'UPDATE Products SET product_name = "{new_name}" WHERE products_id = "{product_select}"')
-    new_price = float(input('Please enter a price for the product \n Press enter to continue \n'))
+    new_price = float(input('Please enter a price for the product\nPress enter to continue\n'))
     if new_price == '' :
         pass
     else:
@@ -86,14 +93,9 @@ def add_product(connection):
     sql = (f'INSERT INTO Products (product_name, price) VALUES ("{new_product}", {product_price})')
     execute_sql(connection, sql)
 
+
 # ============= Couriers Functions ============= 
 
-def print_couriers(connection):
-    cursor = connection.cursor()
-    cursor.execute('SELECT * FROM Couriers')
-    mytable = from_db_cursor(cursor)
-    print(mytable)
-    
 
 def update_courier(connection):
     courier_select = input('What courier would you like to update? \n')
@@ -119,20 +121,16 @@ def delete_courier(connection):
     del_courier = int(input('What courier would you like to delete? \n'))
     sql = (f'DELETE FROM Couriers WHERE couriers_id = "{del_courier}"')
     execute_sql(connection, sql)
-    
-# ============= ORDERS FUNCTIONS ============= 
 
-def print_orders(connection):
-    cursor = connection.cursor()
-    cursor.execute('SELECT * FROM Orders')
-    mytable = from_db_cursor(cursor)
-    print(mytable)
+
+# ============= ORDERS FUNCTIONS ============= 
 
 
 def add_order_to_db(connection):
-    new_name = input('Please enter your full name for the order \n').capitalize()
-    cust_address = input('Please enter a delivery address \n')
-    phone = input('Enter your phone number \n')
+    # i'm 
+    new_name = input('Please enter your full name for the order\n').capitalize()
+    cust_address = input('Please enter a delivery address\n')
+    phone = input('Enter your phone number\n')
     courier = add_courier_to_order(connection)
     live_status = 'In progress'
     items = add_products_to_order(connection)
@@ -143,7 +141,7 @@ def add_order_to_db(connection):
 
 
 def add_courier_to_order(connection):
-    print_couriers(connection)
+    print_database(connection, 'Couriers')
     select_ids = []
     for row in execute_sql_select(connection, f'SELECT couriers_id FROM Couriers'):
         select_ids.append(row[0])
@@ -151,22 +149,26 @@ def add_courier_to_order(connection):
         sel_courier = int(input('Please select a courier from the list \n'))
         if sel_courier in select_ids:
             return sel_courier
+        elif sel_courier not in select_ids:
+            print('Invalid option selected')
         else:
             continue
 
 def add_products_to_order(connection):
-    print_products(connection)
+    print_database(connection, 'Products')
     select_ids = []
     select_product = []
     for row in execute_sql_select(connection, f'SELECT products_id FROM Products'):
         select_ids.append(row[0])
     while True:
-        pick_product = int(input('Please select a product from the list \nPress 0 to exit \n'))
+        pick_product = int(input('Please select a product from the list\nPress 0 to exit \n'))
         if pick_product in select_ids:
             select_product.append(pick_product)
             continue
         elif pick_product == 0:
             break
+        elif pick_product not in select_ids:
+            print('Invalid option selected')
         else:
             continue
     return select_product
@@ -174,14 +176,14 @@ def add_products_to_order(connection):
 def delete_from_db(connection):
     select_ids = [id[0] for id in execute_sql_select(connection, 'SELECT order_id FROM Orders')]
     while True:
-        read_orders_db(connection)
-        id = int(input('Please an Order to delete! \n'))
+        id = int(input('Please select an Order to delete! \n'))
         if id in select_ids:
             execute_sql(connection, f'DELETE FROM Basket WHERE order_id = {id}')
             execute_sql(connection, f'DELETE FROM Orders WHERE order_id = {id}')
             break
-        else:
+        elif id not in select_ids:
             print('Option selected is invalid')
+
 
 def update_fields_in_orders(connection, table, column_name, entry, id):
     if entry == '' :
@@ -189,7 +191,6 @@ def update_fields_in_orders(connection, table, column_name, entry, id):
     else:
         execute_sql(connection, f'UPDATE {table} SET {column_name} = "{entry}" WHERE order_id = {id}')
 
-    # connection, f'UPDATE Products SET product_name = "{new_name}" WHERE products_id = "{product_select}"
 
 def update_order_in_db(connection):
     existing_ids = [id[0] for id in execute_sql_select(connection, f'SELECT order_id from Orders')]
@@ -197,16 +198,15 @@ def update_order_in_db(connection):
         print_orders(connection)
         id = int(input("Please select the order you want to update "))
         if id in existing_ids:
-            update_order_name = input("Please enter the new name\n Press enter to continue \n ")
+            update_order_name = input("Please enter the new name\nPress enter to continue\n ")
             update_fields_in_orders(connection, 'Orders', 'full_name', update_order_name, id)
-            update_order_address = input("Please enter the new delivery address\n Press enter to continue \n ")
+            update_order_address = input("Please enter the new delivery address\n Press enter to continue\n ")
             update_fields_in_orders(connection, 'Orders', 'c_address', update_order_address, id)
-            update_phone = input("Please enter the updated phone number\n Press enter to continue \n ")
-            update_fields_in_orders(connection, 'phone_number', update_phone, id)
-            print_couriers(connection)
-            update_courier = input("Please enter the updated courier from the list above")
-            update_status = input("Please enter the updated status of the order")
-            # execute_sql(connection, f'UPDATE Orders SET full_name = "{update_order_name}", c_address = "{update_order_address}", phone_number = "{update_phone}", courier = "{update_courier}", live_status = "{update_status}" WHERE order_id = {id}')
+            update_phone = input("Please enter the updated phone number\nPress enter to continue\n ")
+            update_fields_in_orders(connection, 'Orders', 'phone_number', update_phone, id)
+            print_database(connection, 'Couriers')
+            update_courier = input("Please enter the updated courier from the list above\n")
+            update_status = input("Please enter the updated status of the order\n")
             execute_sql(connection, f'DELETE from Basket where order_id = {id}')
             items = add_products_to_order(connection)
             for item in items:
@@ -217,4 +217,19 @@ def update_order_in_db(connection):
         else :
             print('Option selected is not valid')
 
+# ============== Join Functions ===========
 
+def join_table_courier(connection):
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT o.full_name AS 'Customer', o.live_status AS 'Order', c.courier_name AS 'Courier' FROM Orders o JOIN Couriers c ON o.courier = c.couriers_id")
+    table = from_db_cursor(cursor)
+    print(table)
+    cursor.close()
+
+
+def join_table_orders(connection):
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT o.full_name AS 'Customer', o.c_address AS 'Delivery Address', GROUP_CONCAT(p.product_name separator', ')  AS 'Items Ordered' FROM Orders o JOIN Basket b ON o.order_id = b.order_id JOIN Products p ON p.products_id = b.products_id GROUP BY o.order_id")
+    table = from_db_cursor(cursor)
+    print(table)
+    cursor.close()
