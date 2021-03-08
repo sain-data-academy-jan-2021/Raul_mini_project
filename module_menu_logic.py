@@ -10,7 +10,7 @@ def product_menu_logic(choice, connection):
     while choice != "0":
         if choice == "1":
             os.system("clear")
-            module_crud.print_products(connection)
+            module_crud.print_database(connection, 'Products')
             choice = module_menus.product_menu()
 
         elif choice == "2":
@@ -27,13 +27,13 @@ def product_menu_logic(choice, connection):
 
         elif choice == "3":
             os.system("clear")
-            module_crud.print_products(connection)
+            module_crud.print_database(connection, 'Products')
             module_crud.update_product(connection)
             choice = module_menus.product_menu()    
 
         elif choice == "4":
             os.system("clear")
-            module_crud.print_products(connection)
+            module_crud.print_database(connection, 'Products')
             module_crud.delete_product(connection)
             choice = module_menus.product_menu()
 
@@ -46,12 +46,19 @@ def order_menu_logic(choice, connection):
     while choice != "0":
         if choice == "1":
             os.system('clear')
-            module_crud.print_orders(connection)
+            module_crud.print_database(connection, 'Orders')
             choice = module_menus.order_menu()
 
         elif choice == "2":
             os.system("clear")
             module_crud.add_order_to_db(connection)
+            while True:
+                add_more = input("Do you want to add another one?\nYes or No\n").title()
+                os.system("clear")
+                if add_more != "No" :
+                    module_crud.add_order_to_db(connection)
+                else:
+                    break
             choice = module_menus.order_menu()
 
         elif choice == "3":
@@ -76,7 +83,7 @@ def courier_menu_logic(choice, connection):
     while choice != "0":
         if choice == "1":
             os.system("clear")
-            module_crud.print_couriers(connection)
+            module_crud.print_database(connection, 'Couriers')
             choice = module_menus.courier_menu()
 
         elif choice == "2":
@@ -86,13 +93,13 @@ def courier_menu_logic(choice, connection):
 
         elif choice == "3":
             os.system("clear")
-            module_crud.print_couriers(connection)
+            module_crud.print_database(connection, 'Couriers')
             module_crud.update_courier(connection)
             choice = module_menus.courier_menu()
 
         elif choice == "4":
             os.system("clear")
-            module_crud.print_couriers(connection)
+            module_crud.print_database(connection, 'Couriers')
             module_crud.delete_courier(connection)
             choice = module_menus.courier_menu()
 
@@ -101,3 +108,19 @@ def courier_menu_logic(choice, connection):
             print("Option selected is invalid")
             choice = module_menus.product_menu()
 
+def join_tabels_logic(choice, connection):
+    while choice != "0":
+        if choice == "1":
+            os.system("clear")
+            module_crud.join_table_courier(connection)
+            choice = module_menus.joins_menu()
+
+        elif choice == "2":
+            os.system("clear")
+            module_crud.join_table_orders(connection)
+            choice = module_menus.joins_menu()
+
+        else:
+            os.system("clear")
+            print("Option selected is invalid")
+            choice = module_menus.joins_menu()

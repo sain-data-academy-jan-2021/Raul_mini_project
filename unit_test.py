@@ -1,6 +1,8 @@
 import module_crud
 from unittest.mock import patch, Mock
 import unittest
+from prettytable import from_db_cursor
+
 
 
 
