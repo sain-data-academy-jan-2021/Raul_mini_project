@@ -34,7 +34,7 @@ def read_orders_db(connection):
     for row in order_rows:
         print(row)
     cursor.close()
-
+# Test
 
 def read_products_db(connection):
     cursor = connection.cursor()
